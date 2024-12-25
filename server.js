@@ -30,9 +30,9 @@ app.use(express.raw({ type: "image/*", limit: "10mb" }));
 
 app.use("/api/payment", paymentRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/tours", authMiddleware, tourRoutes);
-app.use("/api/bookings", authMiddleware, bookingRoutes);
-app.use("/api/users", authMiddleware, userRoutes);
+app.use("/api/tours", tourRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

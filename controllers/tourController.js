@@ -43,3 +43,28 @@ exports.getTourById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getToursByCity = async (req, res) => {
+  try {
+    const { city } = req.body;
+
+    if (!city) {
+      return res.status(400).json({ message: "City parameter is required." });
+    }
+
+    // Call the service to fetch tours by city
+    const tours = await tourService.findToursByCity(city);
+
+    if (tours.length === 0) {
+      return res
+        .status(404)
+        .json({ data: [], message: `No tours found for city: ${city}` });
+    }
+
+    res
+      .status(200)
+      .json({ message: `Tours found for city: ${city}`, data: tours });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -49,3 +49,13 @@ exports.getAllTours = async () => {
 exports.getTourById = async (id) => {
   return await Tour.findById(id);
 };
+
+exports.findToursByCity = async (city) => {
+  try {
+    // Search for tours where the city matches the provided city
+    const tours = await Tour.find({ city: city });
+    return tours;
+  } catch (error) {
+    throw new Error(`Error finding tours for city ${city}: ${error.message}`);
+  }
+};

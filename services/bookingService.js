@@ -2,16 +2,16 @@ const Booking = require("../models/bookingModel");
 const Tour = require("../models/tourModel");
 
 exports.bookTour = async (data) => {
-  const { user, tour, date, totalPrice } = data;
+  const { tourId, participants } = data;
 
-  const selectedTour = await Tour.findById(tour);
+  const selectedTour = await Tour.findById(tourId);
   if (!selectedTour) throw new Error("Tour not found");
-  if (selectedTour.availableSlots <= 0) throw new Error("No slots available");
+  if (selectedTour.maxParticipants <= 0) throw new Error("No slots available");
 
-  const booking = new Booking({ user, tour, date, totalPrice });
+  const booking = new Booking(data);
   await booking.save();
 
-  selectedTour.availableSlots -= 1;
+  selectedTour.maxParticipants -= participants;
   await selectedTour.save();
 
   return booking;
