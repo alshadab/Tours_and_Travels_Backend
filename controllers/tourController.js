@@ -1,9 +1,25 @@
 const tourService = require("../services/tourService");
+const multer = require("multer");
+const storage = multer.memoryStorage(); // Store files in memory for processing
+const upload = multer({ storage });
+exports.uploadImages = upload.array("images", 10); // Here 'images' is the field name, and 10 is the max number of files allowed
 
-exports.createTour = async (req, res) => {
+exports.addTour = async (req, res) => {
   try {
-    const tour = await tourService.addTour(req.body);
-    res.status(201).json(tour);
+    const { body, files } = req;
+
+    // Ensure files are provided
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: "No images provided." });
+    }
+
+    // Pass body and files (array) to the service
+    const newTour = await tourService.addTour(body, files);
+
+    res.status(201).json({
+      message: "Tour added successfully!",
+      tour: newTour,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

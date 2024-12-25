@@ -9,7 +9,7 @@ const tourSchema = new mongoose.Schema(
     duration: { type: String, required: true }, // e.g., "3 days, 2 nights"
     datesAvailable: [Date],
     maxParticipants: { type: Number, required: true },
-    images: [String], // URLs of tour images
+    images: { type: [String], required: true },
   },
   { timestamps: true }
 );
