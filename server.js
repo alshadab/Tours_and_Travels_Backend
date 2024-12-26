@@ -8,6 +8,7 @@ const tourRoutes = require("./routes/tourRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const userRoutes = require("./routes/userRoutes");
+const districtRoutes = require("./routes/districtRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const path = require("path");
 
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tours", tourRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/district", districtRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
