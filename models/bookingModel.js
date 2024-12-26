@@ -16,6 +16,8 @@ const bookingSchema = new mongoose.Schema(
     participants: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     status: { type: String, default: "pending" }, // "pending", "confirmed", "cancelled"
+    active: { type: Boolean, default: true },
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
