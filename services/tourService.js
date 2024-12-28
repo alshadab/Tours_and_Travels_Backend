@@ -3,8 +3,8 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
-exports.addTour = async (data, imageFiles) => {
-  // Define the folder to save images
+exports.addTour = async (data, imageFile) => {
+  // Define the folder to save the image
   const folderPath = path.join(__dirname, "../public/uploads/tourImages");
 
   // Create the folder if it doesn't exist
@@ -12,61 +12,52 @@ exports.addTour = async (data, imageFiles) => {
     fs.mkdirSync(folderPath, { recursive: true });
   }
 
-  // Process and save each image file with a unique name
-  const imagePaths = [];
-  for (const file of imageFiles) {
-    // Generate a unique file name using timestamp and random string
+  // Process and save the image with a unique name
+  let imagePath = "";
+  if (imageFile) {
     const timestamp = Date.now();
-    const randomString = crypto.randomBytes(8).toString("hex"); // 8 bytes hex string
-    const fileExtension = path.extname(file.originalname); // Get the file extension (e.g., '.jpg')
+    const randomString = crypto.randomBytes(8).toString("hex");
+    const fileExtension = path.extname(imageFile.originalname);
     const uniqueFileName = `${timestamp}-${randomString}${fileExtension}`;
 
-    const imagePath = path.join(folderPath, uniqueFileName);
-
-    // Save the image buffer to the file system with the new unique name
-    fs.writeFileSync(imagePath, file.buffer);
-
-    // Save the relative path of the image for database storage
-    imagePaths.push(uniqueFileName);
+    imagePath = path.join(folderPath, uniqueFileName);
+    fs.writeFileSync(imagePath, imageFile.buffer); // Save the image
   }
 
-  // Prepare the tour data for saving
+  // Parse the itinerary field (in case it's sent as a JSON string)
+  let itinerary = [];
+  if (typeof data.itinerary === "string") {
+    itinerary = JSON.parse(data.itinerary);
+  } else {
+    itinerary = data.itinerary;
+  }
+
+  // Parse the inclusions and exclusions (if sent as JSON strings)
+  const inclusions =
+    typeof data.inclusions === "string"
+      ? JSON.parse(data.inclusions)
+      : data.inclusions;
+  const exclusions =
+    typeof data.exclusions === "string"
+      ? JSON.parse(data.exclusions)
+      : data.exclusions;
+
+  // Create the tour object
   const tourData = {
-    title: data.title,
-    description: data.description,
-    location: data.location,
-    city: data.city,
-    price: data.price,
-    duration: data.duration,
-    datesAvailable: data.datesAvailable
-      .split(",")
-      .map((date) => new Date(date)), // Convert date strings to Date objects
-    maxParticipants: data.maxParticipants,
-    images: imagePaths, // Store multiple image paths in an array
-    itinerary: data.itinerary.split("\n"), // Split multiline input into an array
-    inclusions: data.inclusions.split("\n"), // Split multiline input into an array
-    exclusions: data.exclusions.split("\n"), // Split multiline input into an array
-    guide: {
-      name: data.guideName,
-      bio: data.guideBio,
-      contact: data.guideContact,
-    },
-    ratings: {
-      average: data.ratingsAverage || 0,
-      count: data.ratingsCount || 0,
-    },
-    startDate: new Date(data.startDate),
-    createdBy: data.createdBy, // Ensure you pass the user ID from the request
+    ...data,
+    itinerary,
+    inclusions,
+    exclusions,
+    image: imagePath, // Store the image path
   };
 
-  // Save to the database
   const tour = new Tour(tourData);
   await tour.save();
   return tour;
 };
 
 exports.getAllTours = async () => {
-  return await Tour.find().sort({ createdAt: -1 }); // Return all tours, sorted by the newest first
+  return await Tour.find();
 };
 
 exports.getTourById = async (id) => {
@@ -75,7 +66,6 @@ exports.getTourById = async (id) => {
 
 exports.findToursByCity = async (city) => {
   try {
-    // Search for tours where the city matches the provided city
     const tours = await Tour.find({ city: city });
     return tours;
   } catch (error) {
@@ -83,79 +73,65 @@ exports.findToursByCity = async (city) => {
   }
 };
 
-exports.updateTour = async (id, updatedData, imageFiles) => {
-  // If there are new images, process them
-  let imagePaths = [];
-  if (imageFiles && imageFiles.length > 0) {
-    const folderPath = path.join(__dirname, "../public/uploads/tourImages");
+exports.updateTour = async (id, data, imageFile) => {
+  const folderPath = path.join(__dirname, "../public/uploads/tourImages");
 
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
-    for (const file of imageFiles) {
-      const timestamp = Date.now();
-      const randomString = crypto.randomBytes(8).toString("hex");
-      const fileExtension = path.extname(file.originalname);
-      const uniqueFileName = `${timestamp}-${randomString}${fileExtension}`;
-
-      const imagePath = path.join(folderPath, uniqueFileName);
-      fs.writeFileSync(imagePath, file.buffer);
-
-      imagePaths.push(uniqueFileName);
-    }
-  }
-
-  // Prepare the updated data
-  const updatedTourData = {
-    ...updatedData,
-    ...(imagePaths.length > 0 && { images: imagePaths }), // Add new images only if they exist
-    datesAvailable: updatedData.datesAvailable
-      ? updatedData.datesAvailable.split(",").map((date) => new Date(date))
-      : undefined,
-    itinerary: updatedData.itinerary
-      ? updatedData.itinerary.split("\n")
-      : undefined,
-    inclusions: updatedData.inclusions
-      ? updatedData.inclusions.split("\n")
-      : undefined,
-    exclusions: updatedData.exclusions
-      ? updatedData.exclusions.split("\n")
-      : undefined,
-    guide: updatedData.guideName
-      ? {
-          name: updatedData.guideName,
-          bio: updatedData.guideBio,
-          contact: updatedData.guideContact,
-        }
-      : undefined,
-  };
-
-  // Update the tour in the database
-  const updatedTour = await Tour.findByIdAndUpdate(id, updatedTourData, {
-    new: true,
-  });
-
-  return updatedTour;
-};
-
-exports.deleteTour = async (id) => {
   const tour = await Tour.findById(id);
-
   if (!tour) {
     throw new Error("Tour not found");
   }
 
-  // Delete associated images from the file system
+  // Process new image if provided
+  let imagePath = tour.image; // Retain the existing image path if no new image is provided
+  if (imageFile) {
+    const timestamp = Date.now();
+    const randomString = crypto.randomBytes(8).toString("hex");
+    const fileExtension = path.extname(imageFile.originalname);
+    const uniqueFileName = `${timestamp}-${randomString}${fileExtension}`;
+
+    imagePath = path.join(folderPath, uniqueFileName);
+    fs.writeFileSync(imagePath, imageFile.buffer); // Save the new image
+  }
+
+  // Update tour fields
+  tour.title = data.title || tour.title;
+  tour.description = data.description || tour.description;
+  tour.location = data.location || tour.location;
+  tour.city = data.city || tour.city;
+  tour.price = data.price || tour.price;
+  tour.duration = data.duration || tour.duration;
+  tour.datesAvailable = data.datesAvailable || tour.datesAvailable;
+  tour.maxParticipants = data.maxParticipants || tour.maxParticipants;
+  tour.itinerary = data.itinerary || tour.itinerary;
+  tour.inclusions = data.inclusions || tour.inclusions;
+  tour.exclusions = data.exclusions || tour.exclusions;
+  tour.guide = data.guide || tour.guide;
+  tour.startDate = data.startDate || tour.startDate;
+
+  // Store the new image path if a new image is uploaded
+  if (imageFile) {
+    tour.image = imagePath;
+  }
+
+  await tour.save();
+  return tour;
+};
+
+exports.deleteTour = async (id) => {
+  const tour = await Tour.findById(id);
+  if (!tour) {
+    throw new Error("Tour not found");
+  }
+
+  // Optionally, delete associated images
   const folderPath = path.join(__dirname, "../public/uploads/tourImages");
-  for (const imagePath of tour.images) {
-    const fullPath = path.join(folderPath, imagePath);
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+  for (const image of tour.images) {
+    const imagePath = path.join(folderPath, image);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
     }
   }
 
-  // Delete the tour from the database
   await Tour.findByIdAndDelete(id);
   return { message: "Tour deleted successfully" };
 };
