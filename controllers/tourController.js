@@ -1,8 +1,33 @@
 const tourService = require("../services/tourService");
 const multer = require("multer");
-const storage = multer.memoryStorage(); // Store files in memory for processing
-const upload = multer({ storage });
-exports.uploadImages = upload.array("images", 10); // Here 'images' is the field name, and 10 is the max number of files allowed
+
+// Configure multer with error handling
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 5MB limit
+  },
+}).array("images", 10); // Ensure the field name matches the request
+
+exports.uploadImages = (req, res, next) => {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.error("Multer error:", err);
+      return res.status(400).json({
+        message: "File upload error",
+        error: err.message,
+      });
+    } else if (err) {
+      console.error("Unknown error:", err);
+      return res.status(500).json({
+        message: "Unknown error occurred during upload",
+        error: err.message,
+      });
+    }
+    next();
+  });
+};
 
 exports.addTour = async (req, res) => {
   try {

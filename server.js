@@ -27,7 +27,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-app.use(express.raw({ type: "image/*", limit: "10mb" }));
 
 app.use("/api/payment", paymentRoutes);
 app.use("/api/auth", authRoutes);
