@@ -6,12 +6,9 @@ exports.uploadImages = upload.array("images", 10); // Here 'images' is the field
 
 exports.addTour = async (req, res) => {
   try {
-    const { body, file } = req;
-
-    console.log(file)
-
+    const { body, files } = req;
     // Ensure files are provided
-    if (!file || file.length === 0) {
+    if (!files || files.length === 0) {
       return res.status(400).json({ message: "No images provided." });
     }
 

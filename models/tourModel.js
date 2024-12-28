@@ -10,21 +10,17 @@ const tourSchema = new mongoose.Schema(
     duration: { type: String, required: true },
     datesAvailable: [Date],
     maxParticipants: { type: Number, required: true },
-    image: { type: String, required: false },
+    images: { type: [String], required: false },
     itinerary: { type: [String], required: true },
     inclusions: { type: [String], required: true },
     exclusions: { type: [String], required: true },
-    guide: {
-      name: { type: String, required: true },
-      bio: { type: String, required: true },
-      contact: { type: String, required: true },
-    },
+    guide: { type: String, required: true },
     startDate: { type: Date, required: true },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    // createdBy: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
   },
   { timestamps: true }
 );
