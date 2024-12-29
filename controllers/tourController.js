@@ -45,24 +45,42 @@ exports.getTourById = async (req, res) => {
 
 exports.getToursByCity = async (req, res) => {
   try {
-    const { city } = req.body;
+    const { id } = req.body;
 
-    if (!city) {
+    if (!id) {
       return res.status(400).json({ message: "City parameter is required." });
     }
 
     // Call the service to fetch tours by city
-    const tours = await tourService.findToursByCity(city);
+    const tours = await tourService.findToursByCity(id);
 
     if (tours.length === 0) {
       return res
         .status(404)
-        .json({ data: [], message: `No tours found for city: ${city}` });
+        .json({ data: [], message: `No tours found for city: ${id}` });
     }
 
     res
       .status(200)
-      .json({ message: `Tours found for city: ${city}`, data: tours });
+      .json({ message: `Tours found for city: ${id}`, data: tours });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Ensure the id is provided
+    if (!id) {
+      return res.status(400).json({ message: "Tour ID is required" });
+    }
+
+    // Call the service to delete the tour by ID
+    const result = await tourService.deleteTourById(id);
+
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
