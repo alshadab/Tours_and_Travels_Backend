@@ -14,8 +14,10 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const token = await authService.authenticateUser(req.body);
-    res.status(200).json({ token, message: "User logged in successfully" });
+    res
+      .status(200)
+      .json({ error: false, token, message: "User logged in successfully" });
   } catch (error) {
-    res.status(401).json({ message: error.message });
+    res.status(401).json({ error: true, message: error.message });
   }
 };

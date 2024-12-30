@@ -7,5 +7,6 @@ router.get("/getAll", tourController.getTours);
 router.get("/:id", tourController.getTourById);
 router.post("/city", tourController.getToursByCity);
 router.get("/del/tour/:id", tourController.deleteTour);
+router.get("/total/cost", tourController.totalPackageCost);
 
 module.exports = router;

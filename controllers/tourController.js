@@ -85,3 +85,13 @@ exports.deleteTour = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.totalPackageCost = async (req, res) => {
+  try {
+    const result = await tourService.getTotalPrice();
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

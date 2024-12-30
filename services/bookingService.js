@@ -18,5 +18,36 @@ exports.bookTour = async (data) => {
 };
 
 exports.getUserBookings = async (userId) => {
-  return await Booking.find({ user: userId }).populate("tour");
+  return await Booking.find({ userId: userId });
+};
+
+exports.getAllBookings = async () => {
+  try {
+    // Fetch all bookings and populate the associated tour details
+    const bookings = await Booking.find();
+    return bookings;
+  } catch (error) {
+    throw new Error(`Error fetching bookings: ${error.message}`);
+  }
+};
+
+exports.getTodaysBookings = async () => {
+  try {
+    // Get the current date and set the start and end times for today
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set to the start of the day (midnight)
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set to the end of the day
+
+    // Query to fetch bookings created within today's date range
+    const todaysBookings = await Booking.find({
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    })
+      .populate("userId", "name email phoneNumber") // Populate user details with specific fields
+      .populate("tourId", "title description price"); // Populate tour details with specific fields
+
+    return todaysBookings;
+  } catch (error) {
+    throw new Error(`Error fetching today's bookings: ${error.message}`);
+  }
 };

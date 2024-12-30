@@ -3,15 +3,16 @@ const paymentService = require("../services/paymentService");
 
 exports.createBooking = async (req, res) => {
   try {
-    const { user, tour, date, totalPrice } = req.body;
+    const { user, tour, totalPrice, participants } = req.body;
 
-    // Check availability and reserve a slot
-    const booking = await bookingService.bookTour({
-      user,
-      tour,
-      date,
+    const data = {
+      userId: user.userId,
+      tourId: tour.tourId,
       totalPrice,
-    });
+      participants,
+    };
+    // Check availability and reserve a slot
+    const booking = await bookingService.bookTour(data);
 
     // Initiate payment
     const paymentResponse = await paymentService.initiatePayment(
@@ -32,9 +33,33 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookingsByUser = async (req, res) => {
   try {
-    const bookings = await bookingService.getUserBookings(req.params.userId);
+    const bookings = await bookingService.getUserBookings(req.params.id);
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllBookingsController = async (req, res) => {
+  try {
+    const bookings = await bookingService.getAllBookings();
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getTodaysBookingsController = async (req, res) => {
+  try {
+    const todaysBookings = await bookingService.getTodaysBookings();
+    res.status(200).json({
+      message: "Today's bookings retrieved successfully",
+      data: todaysBookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching today's bookings",
+      error: error.message,
+    });
   }
 };

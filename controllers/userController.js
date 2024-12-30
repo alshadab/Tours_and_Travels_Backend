@@ -12,3 +12,82 @@ exports.makeAdmin = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+exports.getAllUsersController = async (req, res) => {
+  try {
+    // Call the service to get all users
+    const users = await userService.getAllUsers();
+
+    // Send the response with the user data
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getAllAdminsController = async (req, res) => {
+  try {
+    // Call the service to get all users
+    const users = await userService.getAllAdmins();
+
+    // Send the response with the user data
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getSingleUserController = async (req, res) => {
+  try {
+    // Call the service to get all users
+    const users = await userService.getUserDetails(req.body);
+
+    // Send the response with the user data
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.removeUserController = async (req, res) => {
+  try {
+    // Extract the userId from request parameters or body
+    const { id } = req.params;
+
+    // Call the service function to remove the user
+    const result = await userService.removeUser(id);
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -91,3 +91,14 @@ exports.deleteTourById = async (id) => {
     throw new Error(`Error deleting tour: ${error.message}`);
   }
 };
+
+exports.getTotalPrice = async () => {
+  try {
+    // Fetch all tours and calculate the total price
+    const tours = await Tour.find({}, "price"); // Fetch only the `price` field
+    const totalPrice = tours.reduce((sum, tour) => sum + tour.price, 0);
+    return totalPrice;
+  } catch (error) {
+    throw new Error(`Error calculating total price: ${error.message}`);
+  }
+};
