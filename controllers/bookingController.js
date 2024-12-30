@@ -3,13 +3,14 @@ const paymentService = require("../services/paymentService");
 
 exports.createBooking = async (req, res) => {
   try {
-    const { user, tour, totalPrice, participants } = req.body;
+    const { user, tour, totalPrice, participants, pickedDate } = req.body;
 
     const data = {
       userId: user.userId,
       tourId: tour.tourId,
       totalPrice,
       participants,
+      pickedDate,
     };
     // Check availability and reserve a slot
     const booking = await bookingService.bookTour(data);

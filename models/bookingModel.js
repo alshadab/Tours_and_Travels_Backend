@@ -13,6 +13,7 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     bookingDate: { type: Date, default: Date.now },
+    pickedDate: { type: String, required: true },
     participants: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     status: { type: String, default: "pending" }, // "pending", "confirmed", "cancelled"

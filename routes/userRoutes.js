@@ -9,5 +9,6 @@ router.get("/all/users", userController.getAllUsersController);
 router.get("/all/admins", userController.getAllAdminsController);
 router.post("/single/user", userController.getSingleUserController);
 router.get("/remove/user/:id", userController.removeUserController);
+router.post("/update/user/:id", userController.updateUserController);
 
 module.exports = router;

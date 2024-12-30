@@ -18,13 +18,13 @@ exports.bookTour = async (data) => {
 };
 
 exports.getUserBookings = async (userId) => {
-  return await Booking.find({ userId: userId });
+  return await Booking.find({ userId: userId }).populate("tourId");
 };
 
 exports.getAllBookings = async () => {
   try {
-    // Fetch all bookings and populate the associated tour details
-    const bookings = await Booking.find();
+    // Fetch all bookings and populate the associated tour and user details
+    const bookings = await Booking.find().populate("tourId").populate("userId");
     return bookings;
   } catch (error) {
     throw new Error(`Error fetching bookings: ${error.message}`);

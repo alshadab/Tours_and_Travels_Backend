@@ -91,3 +91,26 @@ exports.removeUserController = async (req, res) => {
     });
   }
 };
+
+exports.updateUserController = async (req, res) => {
+  try {
+    // Extract the userId from request parameters and update data from request body
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Call the service function to update the user information
+    const updatedUser = await userService.updateUserInfo(id, updateData);
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
