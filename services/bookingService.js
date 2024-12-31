@@ -116,7 +116,7 @@ exports.denyCancelBookingRequest = async (bookingId) => {
     // Find the booking and update the cancelRequest field to true
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
-      { cancelRequest: false, adminRequest: true },
+      { cancelRequest: false, adminRequest: true, status: "Confirmed" },
       { new: true }
     );
     if (!booking) {
