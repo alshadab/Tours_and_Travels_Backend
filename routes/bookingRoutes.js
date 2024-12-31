@@ -6,5 +6,6 @@ router.post("/", bookingController.createBooking);
 router.get("/user/:id", bookingController.getBookingsByUser);
 router.get("/all", bookingController.getAllBookingsController);
 router.get("/today/bookings", bookingController.getTodaysBookingsController);
+router.get("/total-revenue", bookingController.getTotalRevenueController);
 
 module.exports = router;

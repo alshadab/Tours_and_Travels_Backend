@@ -51,3 +51,17 @@ exports.getTodaysBookings = async () => {
     throw new Error(`Error fetching today's bookings: ${error.message}`);
   }
 };
+
+exports.totalRevenue = async () => {
+  try {
+    // Fetch all bookings and calculate the total revenue
+    const bookings = await Booking.find();
+    const totalRevenue = bookings.reduce(
+      (total, booking) => total + booking.totalPrice,
+      0
+    );
+    return totalRevenue;
+  } catch (error) {
+    throw new Error(`Error calculating total revenue: ${error.message}`);
+  }
+};
