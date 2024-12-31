@@ -20,21 +20,18 @@ exports.createBooking = async (req, res) => {
       totalPrice
     );
 
-    if (paymentResponse.status === "success") {
-      // Check availability and reserve a slot
-      const booking = await bookingService.bookTour(data);
+    // Check availability and reserve a slot
+    const booking = await bookingService.bookTour(data);
 
-      console.log(booking, "Booking Response");
-      // Return payment gateway URL
-      res.status(200).json({
-        message: "Booking reserved. Redirect to payment gateway.",
-      });
-    } else {
-      res.status(201).json({
-        message: "Pay for Booking",
-        paymentGatewayUrl: paymentResponse.GatewayPageURL,
-      });
-    }
+    // Return payment gateway URL
+    // res.status(200).json({
+    //   message: "Booking reserved. Redirect to payment gateway.",
+    // });
+
+    res.status(201).json({
+      message: "Pay for Booking",
+      paymentGatewayUrl: paymentResponse.GatewayPageURL,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -82,6 +79,75 @@ exports.getTotalRevenueController = async (req, res) => {
     res.status(200).json({
       success: true,
       data: { totalRevenue },
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.cancelBookingRequestController = async (req, res) => {
+  try {
+    // Extract the bookingId from request parameters
+    const { id } = req.body;
+
+    // Call the service function to cancel the booking request
+    const updatedBooking = await bookingService.cancelBookingRequest(id);
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      data: updatedBooking,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.approveCancelBookingRequestController = async (req, res) => {
+  try {
+    // Extract the bookingId from request parameters
+    const { id, participants } = req.body;
+
+    // Call the service function to cancel the booking request
+    const updatedBooking = await bookingService.approveCancelBookingRequest(
+      id,
+      participants
+    );
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      data: updatedBooking,
+    });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.denyCancelBookingRequestController = async (req, res) => {
+  try {
+    // Extract the bookingId from request parameters
+    const { id } = req.body;
+
+    // Call the service function to cancel the booking request
+    const updatedBooking = await bookingService.denyCancelBookingRequest(id);
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      data: updatedBooking,
     });
   } catch (error) {
     // Handle errors and send an appropriate response

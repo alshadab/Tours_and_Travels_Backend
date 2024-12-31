@@ -9,7 +9,10 @@ router.post("/success", (req, res) => {
   );
   res
     .status(200)
-    .json({ message: "Payment successful", transactionId: tran_id });
+    .json({
+      message: "Payment and booking successful",
+      transactionId: tran_id,
+    });
 });
 
 router.post("/fail", (req, res) => {

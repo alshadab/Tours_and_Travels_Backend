@@ -65,3 +65,66 @@ exports.totalRevenue = async () => {
     throw new Error(`Error calculating total revenue: ${error.message}`);
   }
 };
+
+exports.cancelBookingRequest = async (bookingId) => {
+  try {
+    // Find the booking and update the cancelRequest field to true
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { cancelRequest: true },
+      { new: true }
+    );
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    // Find the associated tour and increase the maxParticipants
+
+    return booking;
+  } catch (error) {
+    throw new Error(`Error cancelling booking request: ${error.message}`);
+  }
+};
+
+exports.approveCancelBookingRequest = async (bookingId, participants) => {
+  try {
+    // Find the booking and update the cancelRequest field to true
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { cancelRequest: true, adminRequest: true, status: "Cancelled" },
+      { new: true }
+    );
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    // Find the associated tour and increase the maxParticipants
+    const tour = await Tour.findById(booking.tourId);
+    if (tour) {
+      tour.maxParticipants += participants;
+      await tour.save();
+    }
+
+    return booking;
+  } catch (error) {
+    throw new Error(`Error cancelling booking request: ${error.message}`);
+  }
+};
+
+exports.denyCancelBookingRequest = async (bookingId) => {
+  try {
+    // Find the booking and update the cancelRequest field to true
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { cancelRequest: false, adminRequest: true },
+      { new: true }
+    );
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    return booking;
+  } catch (error) {
+    throw new Error(`Error cancelling booking request: ${error.message}`);
+  }
+};
