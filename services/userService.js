@@ -71,6 +71,8 @@ exports.getAllAdmins = async () => {
 };
 
 exports.updateUserInfo = async (userId, updateData) => {
+  console.log(updateData, "Update Data");
+  console.log(userId, "User Id");
   // Find the user by ID and update the provided fields
   const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
   if (!user) {
