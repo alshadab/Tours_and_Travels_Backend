@@ -69,3 +69,13 @@ exports.getAllAdmins = async () => {
 
   return users;
 };
+
+exports.updateUserInfo = async (userId, updateData) => {
+  // Find the user by ID and update the provided fields
+  const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user; // Return the updated user
+};
